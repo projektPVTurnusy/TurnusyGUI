@@ -2,81 +2,42 @@ package GUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class WindowGUI extends javax.swing.JFrame {
 
     private boolean addingEdge;
     private boolean addingNode;
     private boolean addingMode;
+    private Container c;
 
-    private JTabbedPane tabbedPane1;
-    private JPanel JPanelDraw;
-    private JButton loadDataButton;
-    private JButton saveDataButton;
-    private JPanel JPanelToolMenu;
-    private JButton addEdgeButton;
-    private JButton AddNodeButton;
     private JPanel mainPanel;
-    private JPanel JPanelInfo;
+    private JButton addEdgeButton;
+    private JPanel JPMenuBarr;
+    private JPanel JPCanvas;
+    private JPanel JPInfo;
+    private JList listInfo;
 
     public WindowGUI() {
         setTitle("Drawing system");
-        setMinimumSize(new Dimension(800,500));
-        pack();
-        setVisible(true);
+        setMinimumSize(new Dimension(1600,800));
+        setPreferredSize(new Dimension(1600,800));
+        setResizable(false);
+
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        mainPanel.setVisible(true);
+        setVisible(true);
         add(mainPanel);
+        mainPanel.setBackground(new Color(65, 65, 65));
 
 
-        this.JPanelDraw = new Canvas();
         this.addingEdge = false;
         this.addingNode = false;
         this.addingMode = false;
 
 
-        addEdgeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (addingNode) {
-                    addingNode = false;
-                }
-
-                if (addingEdge) {
-                    addingEdge = false;
-                    addingMode = false;
-
-                } else {
-                    addingEdge = true;
-                    addingMode = true;
-                }
-                changeCursor();
-                // TODO vytvaranie Node
 
 
-            }
-        });
-        AddNodeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (addingEdge) {
-                    addingEdge = false;
-                }
 
-                if (addingNode) {
-                    addingNode = false;
-                    addingMode = false;
 
-                } else {
-                    addingNode = true;
-                    addingMode = true;
-                }
-                changeCursor();
-                // TODO vytvaranie Edge
-            }
-        });
     };
 
 

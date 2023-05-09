@@ -5,55 +5,98 @@
 package GUI;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+
+import Data.*;
 
 
-public class Canvas extends javax.swing.JPanel {
+public class Canvas extends javax.swing.JComponent {
 
     private int nodeSize;
     private double edgeSize;
     private double mapSize;
+    private double startX = 0;
+    private double startY = 0;
+    private ArrayList<Edge> edges;
+    private ArrayList<Node> nodes;
 
     
     /**
      * Creates new form Canvas2
      */
     public Canvas() {
-        initComponents();
-        nodeSize = 7;
-        edgeSize = 0.7;
+        this.nodeSize = 7;
+        this.edgeSize = 0.7;
+        setPreferredSize(new Dimension(1370,740));
+        this.edges = new ArrayList<>();
+        this.nodes = new ArrayList<>();
+    }
 
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.setColor(Color.RED);
+        g.drawRect(0, 0, 50, 50);
+
+        // Draw a blue oval
+        g.setColor(Color.BLUE);
+        g.drawOval(30, 30, 50, 50);
+        /*
+        * g.setColor(Color.RED);
+        g.drawRect(10, 10, 50, 50);
+
+        // Draw a blue oval
+        g.setColor(Color.BLUE);
+        g.drawOval(30, 30, 50, 50);
+        * */
 
     }
 
-    private void initComponents() {
-        setBackground(new Color(255, 255, 255));
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 300, Short.MAX_VALUE)
-        );
+    public void redraw() {
+        // TODO
     }
 
-    /*
-   private void drawMesh(Graphics g, double scale) {
-       int countX = (int)(this.getWidth() / (scale * 10.0));
-       int countY = (int)(this.getHeight()/ (scale * 10.0));
+    public void addEdge(Edge edge) {
+        this.edges.add(edge);
+        redraw();
+    }
 
-       g.setColor(Color.BLACK);
-       for (int x = 0; x <= countX; ++x) {
-           g.drawLine((int)(x * 10 * scale), 0, (int)(x * 10 * scale), this.getHeight());
-       }
-       for (int y = 0; y <= countY; ++y) {
-           g.drawLine(0, (int)(y * 10 * scale), this.getWidth(), (int)(y * 10 * scale));
-       }
-   }
+    public void addNode(Node node) {
+        this.nodes.add(node);
+        redraw();
+    }
+
+    public boolean removeEdge(Edge edge) {
+        boolean temp = this.edges.remove(edge);
+        redraw();
+        return temp;
+    }
+
+    public boolean removeNode(Node node) {
+        boolean temp = this.nodes.remove(node);
+        redraw();
+        return temp;
+    }
+
+    public void selectObj(boolean type, int objID) {
+        // TODO
+        if (type) {
+            // zmenit farbu nodu
+        } else {
+            // zmenit farbu egde
+        }
+    }
+
+    public void unSelectObj(boolean type, int objID) {
+        // TODO
+        if (type) {
+            // zmenit farbu nodu
+        } else {
+            // zmenit farbu egde
+        }
+    }
 
 
-*/
+
 }
