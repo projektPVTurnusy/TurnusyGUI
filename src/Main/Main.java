@@ -1,18 +1,14 @@
 package Main;
 
-import Data.Node;
-import Data.Edge;
 import Data.DataManager;
-import GUI.WindowGUI;
-
-
+import GUI.GUI;
 
 public class Main {
     private DataManager dataManager;
 
 
     public static void main(String[] args) {
-        WindowGUI windowGUI = new WindowGUI();
+        GUI windowGUI = new GUI();
     }
 
 }

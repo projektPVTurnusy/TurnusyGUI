@@ -10,93 +10,75 @@ import java.util.ArrayList;
 
 import Data.*;
 
+import javax.swing.*;
 
-public class Canvas extends javax.swing.JComponent {
 
-    private int nodeSize;
-    private double edgeSize;
-    private double mapSize;
-    private double startX = 0;
-    private double startY = 0;
-    private ArrayList<Edge> edges;
-    private ArrayList<Node> nodes;
+public class Canvas extends JComponent {
 
-    
-    /**
-     * Creates new form Canvas2
-     */
-    public Canvas() {
-        this.nodeSize = 7;
-        this.edgeSize = 0.7;
-        setPreferredSize(new Dimension(1370,740));
-        this.edges = new ArrayList<>();
-        this.nodes = new ArrayList<>();
-    }
+    private final double startX = 0;
+    private final double startY = 0;
+    private DataManager dataManager;
+    private Graphics2D g2d;
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.setColor(Color.RED);
-        g.drawRect(0, 0, 50, 50);
+        super.paintComponent (g);
+        this.g2d = (Graphics2D) g;
 
-        // Draw a blue oval
-        g.setColor(Color.BLUE);
-        g.drawOval(30, 30, 50, 50);
-        /*
-        * g.setColor(Color.RED);
-        g.drawRect(10, 10, 50, 50);
 
-        // Draw a blue oval
-        g.setColor(Color.BLUE);
-        g.drawOval(30, 30, 50, 50);
-        * */
 
+        // edges
+        if (dataManager == null) {
+            return;
+        }
+        ArrayList<Edge> edges = dataManager.getEdges();
+        for (Edge edge : edges) {
+            this.g2d.setColor(Color.BLUE);
+            Node node1 = edge.getNode1();
+            Node node2 = edge.getNode2();
+
+            if (edge == this.dataManager.getSelectedEdge()) {
+                this.g2d.setColor(Color.GREEN);
+            } else {
+                this.g2d.setColor(Color.LIGHT_GRAY);
+            }
+            this.g2d.setStroke(new BasicStroke((float) dataManager.getEdgeSize()));
+            this.g2d.drawLine((int)(node1.getX() + startX), (int)(node1.getY() + startY), (int)(node2.getX() + startX), (int)(node2.getY() + startY));
+
+        }
+
+        // node
+        ArrayList<Node> nodes = dataManager.getNodes();
+        int offset = dataManager.getNodeSize() / 2;
+        for (Node node : nodes) {
+            if (node == this.dataManager.getSelectedNode()) {
+                this.g2d.setColor(Color.GREEN);
+                System.out.println("prekreslenie");
+            } else {
+                switch (node.getType()) {
+                    case CUSTOMER:
+                        this.g2d.setColor(Color.YELLOW);
+                        break;
+                    case WAREHOUSE_SLOT:
+                        this.g2d.setColor(Color.ORANGE);
+                        break;
+                    default:
+                        this.g2d.setColor(Color.BLUE);
+                        break;
+                }
+            }
+            this.g2d.fillOval((int)(node.getX() - offset + startX), (int)(node.getY() - offset + startY), dataManager.getNodeSize(), dataManager.getNodeSize());
+        }
     }
 
     public void redraw() {
-        // TODO
+        this.repaint();
     }
 
-    public void addEdge(Edge edge) {
-        this.edges.add(edge);
-        redraw();
+    public void setDataManager(DataManager dataManager) {
+        this.dataManager = dataManager;
+        repaint();
     }
-
-    public void addNode(Node node) {
-        this.nodes.add(node);
-        redraw();
-    }
-
-    public boolean removeEdge(Edge edge) {
-        boolean temp = this.edges.remove(edge);
-        redraw();
-        return temp;
-    }
-
-    public boolean removeNode(Node node) {
-        boolean temp = this.nodes.remove(node);
-        redraw();
-        return temp;
-    }
-
-    public void selectObj(boolean type, int objID) {
-        // TODO
-        if (type) {
-            // zmenit farbu nodu
-        } else {
-            // zmenit farbu egde
-        }
-    }
-
-    public void unSelectObj(boolean type, int objID) {
-        // TODO
-        if (type) {
-            // zmenit farbu nodu
-        } else {
-            // zmenit farbu egde
-        }
-    }
-
 
 
 }

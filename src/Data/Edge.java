@@ -1,19 +1,21 @@
 package Data;
 
-public class Edge {
+public class Edge implements ObjInfo {
 
     private int id;
     private Node node1;
     private Node node2;
     private double length;
-    private boolean exactLength; // na posuvanie
+    private boolean exactLength;
     private String name;
 
+    /*
+    *   int id, Node node1, Node node2, double length, boolean exactLength, String name
+    * */
 
     public Edge(int id, Node n1, Node n2, String name) {
-        this(id, n1, n2, 0, true, name);
+        this(id, n1, n2, Math.sqrt((n2.getY() - n1.getY()) * (n2.getY() - n1.getY()) + (n2.getX() - n1.getX()) * (n2.getX() - n1.getX())), true, name);
     }
-
     public Edge(int id, Node n1, Node n2, double length, String name) {
         this(id, n1, n2, length, false, name);
     }
@@ -22,7 +24,9 @@ public class Edge {
         if (n1 == null || n2 == null) throw new RuntimeException("Cant create edge with null nodes!");
         this.id = id;
         this.node1 = n1;
+        n1.addEdge(this);
         this.node2 = n2;
+        n2.addEdge(this);
         this.length = length;
         this.exactLength = exactLength;
         this.name = name;
@@ -61,8 +65,10 @@ public class Edge {
 
     public void setNode1(Node node1) {
         if (node1 == null) {
+            this.node1 = node1;
             return;
         }
+
         this.node1.removeEdge(this);
         this.node1 = node1;
         this.node1.addEdge(this);
@@ -72,6 +78,7 @@ public class Edge {
     }
 
     public void setNode2(Node node2) {
+        this.node2 = node2;
         if (node2 == null) {
             return;
         }
@@ -114,19 +121,21 @@ public class Edge {
         }
     }
 
-
-
-
-
-    /*
-    @Override
-    public String toString() {
-        return "Data.Edge{" + "id=" + id + ", n1=" + node1 + ", n2=" + node2 + ", length=" + length + ", exactLength=" + exactLength + ", allow=" + allow + ", name=" + name + '}';
+    public String[] getInfo() {
+        String[] info = new String[5];
+        info[0] = "  ID: " + this.id + "\n";
+        info[1] = "  Name: " + this.name + "\n";
+        info[2] = "  Length: " + this.length + "\n";
+        info[3] = "  Node1 ID: " + this.node1.getId() + "\n";
+        info[4] = "  Node2 ID: " + this.node2.getId() + "\n";
+        return info;
     }
 
-    public String toSave() {
-        return this.id + "\t" + this.node1.getId() + "\t" + this.node2.getId() + "\t" + this.length + "\t" + (this.exactLength ? 1 : 0) + "\t" + (this.allow ? 1 : 0) + "\t" + this.name;
+    public Node getOtherNode(Node node) {
+        if (this.node1 == node) {
+            return node2;
+        } else {
+            return node1;
+        }
     }
-    */
-
 }
