@@ -1,8 +1,9 @@
 package Data;
 
+import Utils.Reader;
+
 import java.io.*;
 import java.util.*;
-
 public class DataManager {
     private ArrayList<Node> nodes;
     private ArrayList<Edge> edges;
@@ -12,6 +13,8 @@ public class DataManager {
     private final double edgeSize;
     private double[][] distances;
 
+
+
     public DataManager(int nodeSize, double edgeSize) {
         this.nodes = new ArrayList<>();
         this.edges = new ArrayList<>();
@@ -20,6 +23,7 @@ public class DataManager {
         this.nodeSize = nodeSize;
         this.edgeSize = edgeSize;
         this.distances = new double[0][0];
+        loadNodes();
     }
 
     public double[][] getDistances() {
@@ -293,5 +297,13 @@ public class DataManager {
             }
         }
         return null;
+    }
+
+    private void loadNodes() {
+        try {
+            this.nodes = Reader.readNodesFromExcelFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

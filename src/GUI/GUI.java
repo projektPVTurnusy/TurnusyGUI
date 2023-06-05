@@ -1,16 +1,13 @@
 package GUI;
 
-import Data.DataManager;
+import Data.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import Data.*;
 
 
 public class GUI extends JFrame{
@@ -57,6 +54,21 @@ public class GUI extends JFrame{
         this.canvas.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.canvas.setAlignmentY(Component.CENTER_ALIGNMENT);
         canvasPanel.add(this.canvas, BorderLayout.CENTER);
+        this.canvas.setLayout(null);
+        canvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                canvas.addMouseMotionListener(new MouseAdapter() {
+                    @Override
+                    public void mouseDragged(MouseEvent e) {
+                        canvas.setStartX(e.getX());
+                        canvas.setStartY(e.getY());
+
+                        canvas.repaint();
+                    }
+                });
+            }
+        });
 
         // Create a panel for displaying text
         JPanel textPanel = new JPanel(new BorderLayout());

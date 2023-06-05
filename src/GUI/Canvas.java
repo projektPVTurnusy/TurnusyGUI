@@ -4,27 +4,45 @@
  */
 package GUI;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-
-import Data.*;
+import Data.DataManager;
+import Data.Edge;
+import Data.Node;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 
 public class Canvas extends JComponent {
 
-    private final double startX = 0;
-    private final double startY = 0;
+    private double startX;
+    private double startY;
+    private double scale;
     private DataManager dataManager;
     private Graphics2D g2d;
+
+    public Canvas() {
+        this.startX = 0;
+        this.startY = 0;
+        this.scale = 1;
+    }
+
+    public void setStartX(double startX) {
+        this.startX = startX;
+    }
+
+    public void setStartY(double startY) {
+        this.startY = startY;
+    }
+
+    public void setScale(double scale) {
+        this.scale = scale;
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent (g);
         this.g2d = (Graphics2D) g;
-
 
 
         // edges
@@ -43,8 +61,8 @@ public class Canvas extends JComponent {
                 this.g2d.setColor(Color.LIGHT_GRAY);
             }
             this.g2d.setStroke(new BasicStroke((float) dataManager.getEdgeSize()));
-            this.g2d.drawLine((int)(node1.getX() + startX), (int)(node1.getY() + startY), (int)(node2.getX() + startX), (int)(node2.getY() + startY));
-
+            this.g2d.drawLine((int)(node1.getX() + this.startX), (int)(node1.getY() + this.startY),
+                    (int)(node2.getX() + this.startX), (int)(node2.getY() + this.startY));
         }
 
         // node
@@ -67,7 +85,8 @@ public class Canvas extends JComponent {
                         break;
                 }
             }
-            this.g2d.fillOval((int)(node.getX() - offset + startX), (int)(node.getY() - offset + startY), dataManager.getNodeSize(), dataManager.getNodeSize());
+            this.g2d.fillOval((int)(node.getX() - offset + this.startX), (int)(node.getY() - offset + this.startY),
+                    dataManager.getNodeSize(), dataManager.getNodeSize());
         }
     }
 
@@ -80,5 +99,8 @@ public class Canvas extends JComponent {
         repaint();
     }
 
-
+    private boolean isWithinBounds(double x, double y) {
+        return (((x < this.startX + getWidth()) && (x > this.startX)) &&
+                ((y < this.startY + getHeight()) && (y > this.startY)));
+    }
 }
