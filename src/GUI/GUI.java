@@ -10,8 +10,6 @@ import java.awt.event.MouseEvent;
 
 
 public class GUI extends JFrame{
-    private final JButton distancesButton;
-    private final JButton updateDistancesButton;
     private Canvas canvas;
     private final JTextArea textArea;
     private final JTextArea coherencyTextArea;
@@ -22,7 +20,6 @@ public class GUI extends JFrame{
     private DistancesWindow tableWindow;
     private double initialX;
     private double initialY;
-    private  double zoomScale;
 
 
     public GUI() throws HeadlessException {
@@ -110,10 +107,10 @@ public class GUI extends JFrame{
         editPanel.add(coherencyButton);
 
         // Fifth row: Show table with distances and update distances buttons
-        this.distancesButton = new JButton("Shortest distances");
-        this.updateDistancesButton = new JButton("Calculate distances");
-        editPanel.add(this.distancesButton);
-        editPanel.add(this.updateDistancesButton);
+        JButton distancesButton = new JButton("Shortest distances");
+        JButton updateDistancesButton = new JButton("Calculate distances");
+        editPanel.add(distancesButton);
+        editPanel.add(updateDistancesButton);
 
         // Sixth row: Delete button
         this.deleteButton = new JButton("Delete");
@@ -151,8 +148,10 @@ public class GUI extends JFrame{
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
+                /*
                 System.out.println(String.format("mouse x: %s, y: %s ",  e.getX(), e.getY()));
-                //System.out.println(String.format("x: %s, y: %s ",  canvas.getWidth(), canvas.getHeight()));
+                System.out.println(String.format("x: %s, y: %s ",  canvas.getWidth(), canvas.getHeight()));
+                */
                 if (SwingUtilities.isRightMouseButton(e)) {
                     unselect();
                     changeCursor();
@@ -192,7 +191,7 @@ public class GUI extends JFrame{
             if (rotation < 0) {
                 canvas.setZoomScale(canvas.getZoomScale() + 0.1);
             } else {
-                canvas.setZoomScale(canvas.getZoomScale() - 0.1);;
+                canvas.setZoomScale(canvas.getZoomScale() - 0.1);
                 if (canvas.getZoomScale() < 0.1) {
                     canvas.setZoomScale(0.1);
                 }
@@ -275,14 +274,10 @@ public class GUI extends JFrame{
         });
 
         // ActionListener for the distance button
-        distancesButton.addActionListener(e -> {
-            this.tableWindow.openWindow();
-        });
+        distancesButton.addActionListener(e -> this.tableWindow.openWindow());
 
         // ActionListener for the update distances button
-        updateDistancesButton.addActionListener(e -> {
-            this.dataManager.updateDistancesMatrix();
-        });
+        updateDistancesButton.addActionListener(e -> this.dataManager.updateDistancesMatrix());
 
         // ActionListener for the ComboBox button
         comboBoxButton.addActionListener(e -> {
@@ -322,7 +317,6 @@ public class GUI extends JFrame{
         this.addingEdge = false;
         this.initialX = 0;
         this.initialY = 0;
-        this.zoomScale = 1;
     }
 
     private void cursorSelectObj(MouseEvent e) {
@@ -353,7 +347,7 @@ public class GUI extends JFrame{
 
         // detect nodes
         Node node = canvas.detectNode(e.getX(), e.getY());
-        System.out.println("real stX: " + canvas.getStartX() + " stY: " + canvas.getStartY());
+        //System.out.println("real stX: " + canvas.getStartX() + " stY: " + canvas.getStartY());
         if (node != null) {
             selectNode(node);
             return;

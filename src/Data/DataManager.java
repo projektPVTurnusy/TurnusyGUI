@@ -76,15 +76,6 @@ public class DataManager {
         return null;
     }
 
-    public Edge getEdge(int id) {
-        for (Edge edge : edges) {
-            if (edge.getId() == id) {
-                return edge;
-            }
-        }
-        return null;
-    }
-
     public void removeEdge(Edge edge) {
         this.edges.remove(edge);
         for (int i = 0; i < this.edges.size(); ++i) {
