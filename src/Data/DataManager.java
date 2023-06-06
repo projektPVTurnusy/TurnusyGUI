@@ -12,6 +12,8 @@ public class DataManager {
     private final int nodeSize;
     private final double edgeSize;
     private double[][] distances;
+    private double startingX;
+    private double startingY;
 
 
 
@@ -23,7 +25,26 @@ public class DataManager {
         this.nodeSize = nodeSize;
         this.edgeSize = edgeSize;
         this.distances = new double[0][0];
+        this.startingX = 0;
+        this.startingY = 0;
         loadNodes();
+
+    }
+
+    public void setStartingX(double startingX) {
+        this.startingX = startingX;
+    }
+
+    public void setStartingY(double startingY) {
+        this.startingY = startingY;
+    }
+
+    public double getStartingX() {
+        return startingX;
+    }
+
+    public double getStartingY() {
+        return startingY;
     }
 
     public double[][] getDistances() {
@@ -34,7 +55,7 @@ public class DataManager {
         this.nodes.add(node);
     }
 
-    public void addNode(int x, int y) {
+    public void addNode(double x, double y) {
         this.nodes.add(new Node(new ArrayList<>(), this.nodes.size(), x, y, "no name", NodeType.UNSPECIFIED ));
     }
 
@@ -209,6 +230,7 @@ public class DataManager {
             updateDistancesMatrix();
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("Subor neexistuje!");
         }
     }
 

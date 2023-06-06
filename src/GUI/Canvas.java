@@ -17,33 +17,20 @@ public class Canvas extends JComponent {
 
     private double startX;
     private double startY;
-    private double scale;
+    private double zoomScale;
     private DataManager dataManager;
     private Graphics2D g2d;
 
     public Canvas() {
         this.startX = 0;
         this.startY = 0;
-        this.scale = 1;
-    }
-
-    public void setStartX(double startX) {
-        this.startX = startX;
-    }
-
-    public void setStartY(double startY) {
-        this.startY = startY;
-    }
-
-    public void setScale(double scale) {
-        this.scale = scale;
+        this.zoomScale = 1;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent (g);
         this.g2d = (Graphics2D) g;
-
 
         // edges
         if (dataManager == null) {
@@ -61,8 +48,8 @@ public class Canvas extends JComponent {
                 this.g2d.setColor(Color.LIGHT_GRAY);
             }
             this.g2d.setStroke(new BasicStroke((float) dataManager.getEdgeSize()));
-            this.g2d.drawLine((int)(node1.getX() + this.startX), (int)(node1.getY() + this.startY),
-                    (int)(node2.getX() + this.startX), (int)(node2.getY() + this.startY));
+            this.g2d.drawLine((int)((node1.getX() + this.startX) * zoomScale), (int)((node1.getY() + this.startY) * zoomScale),
+                    (int)((node2.getX() + this.startX) * zoomScale), (int)((node2.getY() + this.startY) * zoomScale));
         }
 
         // node
@@ -71,7 +58,6 @@ public class Canvas extends JComponent {
         for (Node node : nodes) {
             if (node == this.dataManager.getSelectedNode()) {
                 this.g2d.setColor(Color.GREEN);
-                System.out.println("prekreslenie");
             } else {
                 switch (node.getType()) {
                     case CUSTOMER:
@@ -85,9 +71,33 @@ public class Canvas extends JComponent {
                         break;
                 }
             }
-            this.g2d.fillOval((int)(node.getX() - offset + this.startX), (int)(node.getY() - offset + this.startY),
+            this.g2d.fillOval((int)((node.getX() + this.startX) * zoomScale - offset), (int)((node.getY() + this.startY) * zoomScale - offset),
                     dataManager.getNodeSize(), dataManager.getNodeSize());
         }
+    }
+
+    public void setStartX(double startX) {
+        this.startX = startX;
+    }
+
+    public void setStartY(double startY) {
+        this.startY = startY;
+    }
+
+    public double getStartX() {
+        return startX;
+    }
+
+    public double getStartY() {
+        return startY;
+    }
+
+    public void setZoomScale(double zoomScale) {
+        this.zoomScale = zoomScale;
+    }
+
+    public double getZoomScale() {
+        return zoomScale;
     }
 
     public void redraw() {
@@ -102,5 +112,51 @@ public class Canvas extends JComponent {
     private boolean isWithinBounds(double x, double y) {
         return (((x < this.startX + getWidth()) && (x > this.startX)) &&
                 ((y < this.startY + getHeight()) && (y > this.startY)));
+    }
+
+    public Node detectNode(int x, int y) {
+
+        double realX = transformXToReal(x);
+        double realY = transformYToReal(y);
+        ArrayList<Node> nodes = dataManager.getNodes();
+        int offset = dataManager.getNodeSize() / 2;
+        for (Node node : nodes) {
+
+            if (((realX  > node.getX() - offset) && (realX < (node.getX() + offset)))
+                    && (realY > node.getY() - offset && realY < node.getY() + offset)) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    public Edge detectEdge(int x, int y) {
+        double realX = transformXToReal(x);
+        double realY = transformYToReal(y);
+        ArrayList<Edge> edges = dataManager.getEdges();
+        for (Edge edge : edges) {
+            if (isPointOnEdge(realX, realY, edge)) {
+                return edge;
+            }
+        }
+        return null;
+    }
+
+    private boolean isPointOnEdge(double x, double y, Edge edge) {
+        int dx = (int) (edge.getNode1().getX() - edge.getNode2().getX());
+        int dy = (int) (edge.getNode1().getY() - edge.getNode2().getY());
+        double m = (double) dy / dx;
+        double c = edge.getNode2().getY() - m * edge.getNode2().getX();
+
+        double calcY = m * x + c;
+        return Math.abs(calcY - y) <= dataManager.getEdgeSize() + 5; // + 5 lebo inak je tazke zakliknut
+    }
+
+    public double transformXToReal(double localX) {
+        return this.startX + localX / zoomScale;
+    }
+
+    public double transformYToReal(double localY) {
+        return this.startY + localY / zoomScale;
     }
 }
