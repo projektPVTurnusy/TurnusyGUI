@@ -6,8 +6,8 @@ public class Node implements ObjInfo {
 
     private ArrayList<Edge> edges;
     private int id;
-    private final double x;
-    private final double y;
+    private double x;
+    private double y;
     private String name;
     private NodeType type;
     private double value;
@@ -36,23 +36,7 @@ public class Node implements ObjInfo {
         this.edges = new ArrayList<>();
     }
 
-    public boolean containsEdge(Edge edge) {
-        for (Edge temp : this.edges) {
-            if (temp == edge) return true;
-        }
-        return false;
-    }
-
-    public boolean connectedNode(Node node) {
-        for (Edge temp : this.edges) {
-            if (temp.getNode1() == node || temp.getNode2() == node) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public String[] getInfo() {
+      public String[] getInfo() {
         String[] info = new String[6 + edges.size()];
         info[0] = "  ID: " + this.id + "\n";
         info[1] = "  Name: " + this.name + "\n";
@@ -113,6 +97,18 @@ public class Node implements ObjInfo {
         return name;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -125,7 +121,23 @@ public class Node implements ObjInfo {
         this.edges.remove(edge);
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public boolean containsEdge(Edge edge) {
+        for (Edge temp : this.edges) {
+            if (temp == edge) {
+                return true;
+            }
+        }
+        return false;
     }
+
+    public boolean connectedNode(Node node) {
+        for (Edge temp : this.edges) {
+            if (temp.getNode1() == node || temp.getNode2() == node) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

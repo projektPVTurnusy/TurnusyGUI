@@ -1,21 +1,15 @@
 package GUI;
 
-import Data.DataManager;
+import Data.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import Data.*;
 
 
 public class GUI extends JFrame{
-    private final JButton distancesButton;
-    private final JButton updateDistancesButton;
     private Canvas canvas;
     private final JTextArea textArea;
     private final JTextArea coherencyTextArea;
@@ -24,6 +18,8 @@ public class GUI extends JFrame{
     private boolean addingNode;
     private boolean addingEdge;
     private DistancesWindow tableWindow;
+    private double initialX;
+    private double initialY;
 
 
     public GUI() throws HeadlessException {
@@ -57,6 +53,7 @@ public class GUI extends JFrame{
         this.canvas.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.canvas.setAlignmentY(Component.CENTER_ALIGNMENT);
         canvasPanel.add(this.canvas, BorderLayout.CENTER);
+        this.canvas.setLayout(null);
 
         // Create a panel for displaying text
         JPanel textPanel = new JPanel(new BorderLayout());
@@ -110,10 +107,10 @@ public class GUI extends JFrame{
         editPanel.add(coherencyButton);
 
         // Fifth row: Show table with distances and update distances buttons
-        this.distancesButton = new JButton("Shortest distances");
-        this.updateDistancesButton = new JButton("Calculate distances");
-        editPanel.add(this.distancesButton);
-        editPanel.add(this.updateDistancesButton);
+        JButton distancesButton = new JButton("Shortest distances");
+        JButton updateDistancesButton = new JButton("Calculate distances");
+        editPanel.add(distancesButton);
+        editPanel.add(updateDistancesButton);
 
         // Sixth row: Delete button
         this.deleteButton = new JButton("Delete");
@@ -151,20 +148,60 @@ public class GUI extends JFrame{
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
+                /*
+                System.out.println(String.format("mouse x: %s, y: %s ",  e.getX(), e.getY()));
+                System.out.println(String.format("x: %s, y: %s ",  canvas.getWidth(), canvas.getHeight()));
+                */
                 if (SwingUtilities.isRightMouseButton(e)) {
                     unselect();
                     changeCursor();
-                    System.out.println("cursor change");
                 } else {
                     cursorSelectObj(e);
-                    System.out.println("hmmm");
                 }
             }
         });
 
+        // MouseListener for camera
+        canvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                initialX = e.getX();
+                initialY = e.getY();
+                dataManager.setStartingX(canvas.getStartX());
+                dataManager.setStartingY(canvas.getStartY());
+            }
+        });
+
+        // MouseListener for camera
+        canvas.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                double changeX = e.getX() - initialX;
+                double changeY = e.getY() - initialY;
+                double newX = dataManager.getStartingX() + changeX;
+                double newY = dataManager.getStartingY() + changeY ;
+                canvas.setStartX(newX);
+                canvas.setStartY(newY);
+                canvas.redraw();
+            }
+        });
+
+        canvas.addMouseWheelListener(e -> {
+            int rotation = e.getWheelRotation();
+            if (rotation < 0) {
+                canvas.setZoomScale(canvas.getZoomScale() + 0.1);
+            } else {
+                canvas.setZoomScale(canvas.getZoomScale() - 0.1);
+                if (canvas.getZoomScale() < 0.1) {
+                    canvas.setZoomScale(0.1);
+                }
+            }
+            canvas.redraw();
+        });
+
         // ButtonListener for adding Edge button
         buttonAddE.addActionListener(e -> {
-            System.out.println("add E");
+            //System.out.println("add E");
             this.addingEdge = true;
             this.addingNode = false;
             changeCursor();
@@ -172,7 +209,7 @@ public class GUI extends JFrame{
 
         // ButtonListener for adding Node button
         buttonAddN.addActionListener(e -> {
-            System.out.println("add N");
+            //System.out.println("add N");
             this.addingNode = true;
             this.addingEdge = false;
             changeCursor();
@@ -180,13 +217,13 @@ public class GUI extends JFrame{
 
         // ButtonListener for saving button
         buttonSave.addActionListener(e -> {
-            System.out.println("save");
+            //System.out.println("save");
             this.dataManager.save();
         });
 
         // ButtonListener for loading button
         buttonLoad.addActionListener(e -> {
-            System.out.println("load");
+            //System.out.println("load");
             this.dataManager.load();
             this.canvas.redraw();
             unselect();
@@ -195,7 +232,7 @@ public class GUI extends JFrame{
 
         // ButtonListener for generating button
         buttonGenerate.addActionListener(e -> {
-            System.out.println("save");
+            //System.out.println("save");
             this.dataManager.generate(10);
             getInfo(null);
             unselect();
@@ -216,7 +253,7 @@ public class GUI extends JFrame{
                 getInfo(edge);
             }
             nameTextArea.setText("new Name");
-            System.out.println("New Name: " + newName);
+            //System.out.println("New Name: " + newName);
         });
 
         // ActionListener for the Value button
@@ -233,18 +270,14 @@ public class GUI extends JFrame{
                 getInfo(edge);
             }
             valueTextArea.setText("new value");
-            System.out.println("New Value: " + newValue);
+            //System.out.println("New Value: " + newValue);
         });
 
         // ActionListener for the distance button
-        distancesButton.addActionListener(e -> {
-            this.tableWindow.openWindow();
-        });
+        distancesButton.addActionListener(e -> this.tableWindow.openWindow());
 
         // ActionListener for the update distances button
-        updateDistancesButton.addActionListener(e -> {
-            this.dataManager.updateDistancesMatrix();
-        });
+        updateDistancesButton.addActionListener(e -> this.dataManager.updateDistancesMatrix());
 
         // ActionListener for the ComboBox button
         comboBoxButton.addActionListener(e -> {
@@ -255,7 +288,7 @@ public class GUI extends JFrame{
                 NodeType nodeType = getEnum(selectedOption);
                 this.dataManager.getSelectedNode().setType(nodeType);
             }
-            System.out.println("Selected Option: " + selectedOption);
+            //System.out.println("Selected Option: " + selectedOption);
         });
 
         // ActionListener for the deleting button
@@ -282,18 +315,22 @@ public class GUI extends JFrame{
         this.canvas.setDataManager(dataManager);
         this.addingNode = false;
         this.addingEdge = false;
+        this.initialX = 0;
+        this.initialY = 0;
     }
 
     private void cursorSelectObj(MouseEvent e) {
         // adding
         if (addingEdge || addingNode) {
             if (addingNode) {
-                this.dataManager.addNode(e.getX(), e.getY());
+                double realX = canvas.transformXToReal(e.getX());
+                double realY = canvas.transformYToReal(e.getY());
+                this.dataManager.addNode(realX, realY);
                 this.canvas.redraw();
                 checkCoherency();
                 return;
             } else {
-                Node node = detectNode(e.getX(), e.getY());
+                Node node = this.canvas.detectNode(e.getX(), e.getY());
                 if (node != null) {
                     if (dataManager.getSelectedNode() == null) {
                         selectNode(node);
@@ -309,14 +346,15 @@ public class GUI extends JFrame{
         }
 
         // detect nodes
-        Node node = detectNode(e.getX(), e.getY());
+        Node node = canvas.detectNode(e.getX(), e.getY());
+        //System.out.println("real stX: " + canvas.getStartX() + " stY: " + canvas.getStartY());
         if (node != null) {
             selectNode(node);
             return;
         }
 
         // detect edge
-        Edge edge = detectEdge(e.getX(), e.getY());
+        Edge edge = canvas.detectEdge(e.getX(), e.getY());
         if (edge != null) {
             selectEdge(edge);
             return;
@@ -344,16 +382,6 @@ public class GUI extends JFrame{
         }
     }
 
-    private boolean isPointOnEdge(int x, int y, Edge edge) {
-        int dx = (int) (edge.getNode1().getX() - edge.getNode2().getX());
-        int dy = (int) (edge.getNode1().getY() - edge.getNode2().getY());
-        double m = (double) dy / dx;
-        double c = edge.getNode2().getY() - m * edge.getNode2().getX();
-
-        double calcY = m * x + c;
-        return Math.abs(calcY - y) <= dataManager.getEdgeSize() + 5; // + 5 lebo inak je tazke zakliknut
-    }
-
     private void createUIComponents() {
         this.canvas = new Canvas();
     }
@@ -368,26 +396,7 @@ public class GUI extends JFrame{
         }
     }
 
-    private Node detectNode(int x, int y) {
-        ArrayList<Node> nodes = dataManager.getNodes();
-        int offset = dataManager.getNodeSize() / 2;
-        for (Node node : nodes) {
-            if (((x  > node.getX() - offset) && (x < (node.getX() + offset))) && (y > node.getY() - offset && y < node.getY() + offset)) {
-                return node;
-            }
-        }
-        return null;
-    }
 
-    private Edge detectEdge(int x, int y) {
-        ArrayList<Edge> edges = dataManager.getEdges();
-        for (Edge edge : edges) {
-            if (isPointOnEdge(x, y, edge)) {
-                return edge;
-            }
-        }
-        return null;
-    }
 
     private void unselect() {
         this.dataManager.unselect();
