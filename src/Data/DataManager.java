@@ -86,7 +86,7 @@ public class DataManager {
         }
 
     }
-
+    
     public void removeNode(Node node) {
         for (int i = 0; i < node.getEdges().size(); i++) {
             Edge edge = node.getEdges().get(i);
@@ -109,6 +109,14 @@ public class DataManager {
 
     public ArrayList<Edge> getEdges() {
         return edges;
+    }
+
+    public void setNodes(ArrayList<Node> newNodes){
+        this.nodes = newNodes;
+    }
+
+    public void setEdges(ArrayList<Edge> newEdges){
+        this.edges = newEdges;
     }
 
     public Node getSelectedNode() {
@@ -225,7 +233,7 @@ public class DataManager {
         }
     }
 
-    private static Node findNodeById(ArrayList<Node> nodes, int nodeId) {
+    public static Node findNodeById(ArrayList<Node> nodes, int nodeId) {
         for (Node node : nodes) {
             if (node.getId() == nodeId) {
                 return node;
