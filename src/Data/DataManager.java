@@ -95,6 +95,14 @@ public class DataManager {
         return edges;
     }
 
+    public void setNodes(ArrayList<Node> newNodes){
+        this.nodes = newNodes;
+    }
+
+    public void setEdges(ArrayList<Edge> newEdges){
+        this.edges = newEdges;
+    }
+
     public Node getSelectedNode() {
         return selectedNode;
     }
