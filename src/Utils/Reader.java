@@ -1,4 +1,4 @@
-package Util;
+package Utils;
 
 import java.io.File;  
 import java.io.FileInputStream;
@@ -14,22 +14,15 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;  
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import Data.DataManager;
 import Data.Edge;
 import Data.Node;
 import Data.NodeType;  
 
 public class Reader {
     
-    private DataManager dataManager;
-
-    public Reader(DataManager manager){
-        this.dataManager = manager;
-    }
-
-    public ArrayList<Node> readNodesFromExcelFile() throws IOException{
+    public static List<Node> readNodesFromExcelFile() throws IOException{
         
-        ArrayList<Node> readedNodes = new ArrayList<Node>();
+        List<Node> readedNodes = new ArrayList<Node>();
         
         try {
             FileInputStream inputStream = new FileInputStream(new File("src/Resources/vrcholy.xlsx"));
@@ -66,13 +59,9 @@ public class Reader {
 
     }
 
-    public ArrayList<Edge> readEdgesFromExcelFile() throws IOException{
+    public static List<Edge> readEdgesFromExcelFile() throws IOException{
         
-        if(dataManager.getNodeSize() == 0){
-            return null;
-        }
-        
-        ArrayList<Edge> readedEdges = new ArrayList<Edge>();
+        List<Edge> readedEdges = new ArrayList<Edge>();
         
         try {
             FileInputStream inputStream = new FileInputStream(new File("src/Resources/hrany.xlsx"));
@@ -90,32 +79,18 @@ public class Reader {
                     i++;
                     continue;
                 }
+
+                Edge edge = new Edge
+
+                Node node = new Node((int)row.getCell(0).getNumericCellValue(), 
+                                      (double)row.getCell(2).getNumericCellValue(), 
+                                      (double)row.getCell(3).getNumericCellValue(), 
+                                      row.getCell(1).getStringCellValue(), NodeType.UNSPECIFIED, 0);
                 
-                int nodeStartId =  (int)row.getCell(0).getNumericCellValue();
-                int nodeEndId =  (int)row.getCell(2).getNumericCellValue();
-
-                Node startNode = dataManager.getNodes().stream()
-                                .filter(n -> n.getId() == nodeStartId)
-                                .findAny()
-                                .orElse(null);
-
-                Node endNode = dataManager.getNodes().stream()
-                                .filter(n -> n.getId() == nodeEndId)
-                                .findAny()
-                                .orElse(null);
-
-                if(endNode == null || startNode == null){
-                    System.out.println("Nepodaroilo sa nacitat hranu so zac. vrcholom "+ nodeStartId +" a koncovym "+nodeEndId);
-                }
-                else{
-                    Edge edge = new Edge(i, startNode, endNode, (int)row.getCell(4).getNumericCellValue(), null);
-                    readedEdges.add(edge);
-                }
-
-                i++;
+                readedEdges.add(node);
             }
 
-            return readedEdges;
+            return readedNodes;
 
         } catch (FileNotFoundException e) {
 
