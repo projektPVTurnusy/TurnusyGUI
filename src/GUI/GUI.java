@@ -8,6 +8,9 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactoryInfo;
 
 
 public class GUI extends JFrame{
@@ -58,6 +61,22 @@ public class GUI extends JFrame{
 
         // Create a JXMapViewer component
         JXMapViewer mapViewer = new JXMapViewer();
+
+
+// Create a map provider
+        TileFactoryInfo tileFactoryInfo = new TileFactoryInfo(...); // Configure the tile factory info
+        DefaultTileFactory tileFactory = new DefaultTileFactory(tileFactoryInfo);
+
+// Set the tile factory for the map viewer
+        mapViewer.setTileFactory(tileFactory);
+
+// Set the initial position of the map
+        GeoPosition initialPosition = new GeoPosition(initialX, initialY); // Specify the latitude and longitude of the initial position
+        mapViewer.setCenterPosition(initialPosition);
+        mapViewer.setZoom(50); // Set the initial zoom level
+
+
+
 
         // Create a panel for displaying text
         JPanel textPanel = new JPanel(new BorderLayout());
