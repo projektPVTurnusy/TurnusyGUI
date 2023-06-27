@@ -1,23 +1,19 @@
 package Util;
 
-import java.io.File;  
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.poi.ss.usermodel.Cell;  
-import org.apache.poi.ss.usermodel.Row;  
-import org.apache.poi.xssf.usermodel.XSSFSheet;  
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import Data.DataManager;
 import Data.Edge;
 import Data.Node;
-import Data.NodeType;  
+import Data.NodeType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Reader {
     
@@ -109,6 +105,8 @@ public class Reader {
                 }
                 else{
                     Edge edge = new Edge(i, startNode, endNode, (int)row.getCell(4).getNumericCellValue(), null);
+                    startNode.addEdge(edge);
+                    endNode.addEdge(edge);
                     readedEdges.add(edge);
                 }
 

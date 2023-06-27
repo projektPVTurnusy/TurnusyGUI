@@ -7,6 +7,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import org.jxmapviewer.JXMapViewer;
 
 
 public class GUI extends JFrame{
@@ -54,6 +55,9 @@ public class GUI extends JFrame{
         this.canvas.setAlignmentY(Component.CENTER_ALIGNMENT);
         canvasPanel.add(this.canvas, BorderLayout.CENTER);
         this.canvas.setLayout(null);
+
+        // Create a JXMapViewer component
+        JXMapViewer mapViewer = new JXMapViewer();
 
         // Create a panel for displaying text
         JPanel textPanel = new JPanel(new BorderLayout());
@@ -176,10 +180,10 @@ public class GUI extends JFrame{
         canvas.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                double changeX = e.getX() - initialX;
-                double changeY = e.getY() - initialY;
+                double changeX = (e.getX() - initialX) / canvas.getZoomScale();
+                double changeY = (e.getY() - initialY) / canvas.getZoomScale();
                 double newX = dataManager.getStartingX() + changeX;
-                double newY = dataManager.getStartingY() + changeY ;
+                double newY = dataManager.getStartingY() + changeY;
                 canvas.setStartX(newX);
                 canvas.setStartY(newY);
                 canvas.redraw();
@@ -309,14 +313,16 @@ public class GUI extends JFrame{
     }
 
     private void initialize() {
-        this.dataManager = new DataManager(30,4);
+        this.initialX = 19.1591;
+        this.initialY = 48.7351;
+        this.dataManager = new DataManager(30,4, initialX, initialY);
         this.tableWindow = new DistancesWindow(this.dataManager);
 
         this.canvas.setDataManager(dataManager);
         this.addingNode = false;
         this.addingEdge = false;
-        this.initialX = 0;
-        this.initialY = 0;
+        this.canvas.setZoomScale(150);
+
     }
 
     private void cursorSelectObj(MouseEvent e) {
