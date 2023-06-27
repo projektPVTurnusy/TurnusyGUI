@@ -4,10 +4,15 @@ import Data.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
 import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
@@ -52,30 +57,26 @@ public class GUI extends JFrame{
 
         // Create a canvas panel
         JPanel canvasPanel = new JPanel();
-        canvasPanel.setLayout(new BorderLayout());
+        canvasPanel.setLayout(new OverlayLayout(canvasPanel));
         this.canvas = new Canvas();
         this.canvas.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.canvas.setAlignmentY(Component.CENTER_ALIGNMENT);
         canvasPanel.add(this.canvas, BorderLayout.CENTER);
         this.canvas.setLayout(null);
-
         // Create a JXMapViewer component
-        JXMapViewer mapViewer = new JXMapViewer();
 
+        TileFactoryInfo osmInfo = new OSMTileFactoryInfo();
+        final JXMapViewer mapViewer = new JXMapViewer();
+        mapViewer.setTileFactory(new DefaultTileFactory(osmInfo));
+        mapViewer.setZoom(7);
+        mapViewer.setAddressLocation(new GeoPosition(49.11, 18.68));
+        MouseInputListener mia = new PanMouseInputListener(mapViewer);
+        mapViewer.addMouseListener(mia);
+        mapViewer.addMouseMotionListener(mia);
+        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+        canvasPanel.add(mapViewer);
 
-// Create a map provider
-        TileFactoryInfo tileFactoryInfo = new TileFactoryInfo(...); // Configure the tile factory info
-        DefaultTileFactory tileFactory = new DefaultTileFactory(tileFactoryInfo);
-
-// Set the tile factory for the map viewer
-        mapViewer.setTileFactory(tileFactory);
-
-// Set the initial position of the map
-        GeoPosition initialPosition = new GeoPosition(initialX, initialY); // Specify the latitude and longitude of the initial position
-        mapViewer.setCenterPosition(initialPosition);
-        mapViewer.setZoom(50); // Set the initial zoom level
-
-
+        //
 
 
         // Create a panel for displaying text
