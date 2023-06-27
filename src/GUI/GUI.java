@@ -4,10 +4,22 @@ import Data.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.VirtualEarthTileFactoryInfo;
+import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactory;
+import org.jxmapviewer.viewer.TileFactoryInfo;
 
 
 public class GUI extends JFrame{
@@ -57,7 +69,17 @@ public class GUI extends JFrame{
         this.canvas.setLayout(null);
 
         // Create a JXMapViewer component
-        JXMapViewer mapViewer = new JXMapViewer();
+
+        TileFactoryInfo osmInfo = new OSMTileFactoryInfo();
+        final JXMapViewer mapViewer = new JXMapViewer();
+        mapViewer.setTileFactory(new DefaultTileFactory(osmInfo));
+        mapViewer.setZoom(7);
+        mapViewer.setAddressLocation(new GeoPosition(49.11, 18.68));
+        MouseInputListener mia = new PanMouseInputListener(mapViewer);
+        mapViewer.addMouseListener(mia);
+        mapViewer.addMouseMotionListener(mia);
+        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+        canvasPanel.add(mapViewer);
 
         // Create a panel for displaying text
         JPanel textPanel = new JPanel(new BorderLayout());
