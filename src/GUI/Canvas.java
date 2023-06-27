@@ -108,13 +108,6 @@ public class Canvas extends JComponent {
         repaint();
     }
 
-    /*
-    private boolean isWithinBounds(double x, double y) {
-        return (((x < this.startX + getWidth()) && (x > this.startX)) &&
-                ((y < this.startY + getHeight()) && (y > this.startY)));
-    }
-    */
-
     public Node detectNode(int x, int y) {
 
         double realX = transformXToReal(x);

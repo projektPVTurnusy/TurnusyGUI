@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.*;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
@@ -63,20 +64,19 @@ public class GUI extends JFrame{
         this.canvas.setAlignmentY(Component.CENTER_ALIGNMENT);
         canvasPanel.add(this.canvas, BorderLayout.CENTER);
         this.canvas.setLayout(null);
-        // Create a JXMapViewer component
 
+        // Create a JXMapViewer component
         TileFactoryInfo osmInfo = new OSMTileFactoryInfo();
         final JXMapViewer mapViewer = new JXMapViewer();
         mapViewer.setTileFactory(new DefaultTileFactory(osmInfo));
         mapViewer.setZoom(7);
         mapViewer.setAddressLocation(new GeoPosition(49.11, 18.68));
         MouseInputListener mia = new PanMouseInputListener(mapViewer);
-        mapViewer.addMouseListener(mia);
-        mapViewer.addMouseMotionListener(mia);
-        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+        canvas.addMouseListener(mia);
+        canvas.addMouseMotionListener(mia);
+        canvas.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         canvasPanel.add(mapViewer);
 
-        //
 
 
         // Create a panel for displaying text
