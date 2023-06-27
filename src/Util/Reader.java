@@ -3,7 +3,6 @@ package Util;
 import Data.DataManager;
 import Data.Edge;
 import Data.Node;
-import Data.NodeType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -47,7 +46,7 @@ public class Reader {
                 Node node = new Node((int)row.getCell(0).getNumericCellValue(), 
                                       (double)row.getCell(2).getNumericCellValue(), 
                                       (double)row.getCell(3).getNumericCellValue(), 
-                                      row.getCell(1).getStringCellValue(), NodeType.UNSPECIFIED, 0);
+                                      row.getCell(1).getStringCellValue());
                 
                 readedNodes.add(node);
             }
@@ -78,6 +77,7 @@ public class Reader {
             Iterator<Row> itr = sheet.iterator();    //iterating over excel file  
 
             int i = 0;
+            int index = 0;
             while(itr.hasNext()){
                 
                 Row row = itr.next();
@@ -101,13 +101,16 @@ public class Reader {
                                 .orElse(null);
 
                 if(endNode == null || startNode == null){
-                    System.out.println("Nepodaroilo sa nacitat hranu so zac. vrcholom "+ nodeStartId +" a koncovym "+nodeEndId);
+                    System.out.println("Nepodarilo sa nacitat hranu so zac. vrcholom "+ nodeStartId +" a koncovym "+nodeEndId);
                 }
                 else{
-                    Edge edge = new Edge(i, startNode, endNode, (int)row.getCell(4).getNumericCellValue(), null);
-                    startNode.addEdge(edge);
-                    endNode.addEdge(edge);
-                    readedEdges.add(edge);
+                    Edge edge = new Edge(index++, startNode, endNode, (int)row.getCell(4).getNumericCellValue());
+                    if(startNode.addEdge(edge) && endNode.addEdge(edge))
+                        readedEdges.add(edge);
+                    else
+                    {
+                        index--;
+                    }
                 }
 
                 i++;

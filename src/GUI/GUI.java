@@ -8,9 +8,13 @@ import javax.swing.event.MouseInputListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 
 import org.jxmapviewer.JXMapViewer;
-import org.jxmapviewer.*;
 import org.jxmapviewer.OSMTileFactoryInfo;
 import org.jxmapviewer.input.PanMouseInputListener;
 import org.jxmapviewer.input.ZoomMouseWheelListenerCursor;
@@ -20,64 +24,45 @@ import org.jxmapviewer.viewer.TileFactoryInfo;
 
 
 public class GUI extends JFrame{
-    private Canvas canvas;
     private final JTextArea textArea;
-    private final JTextArea coherencyTextArea;
-    private final JButton deleteButton;
-    private DataManager dataManager;
-    private boolean addingNode;
-    private boolean addingEdge;
-    private DistancesWindow tableWindow;
-    private double initialX;
-    private double initialY;
+    private final JXMapViewer mapViewer;
+    private final MapPainter mapPainter;
 
+    private DataManager dataManager;
+    //private DistancesWindow tableWindow;
+    private final double initialLatitude = 19.543304443359375;
+    private final double initialLongitude = 49.02075978339726;
 
     public GUI() throws HeadlessException {
+        this.dataManager = new DataManager(4,2);
+        //this.tableWindow = new DistancesWindow(this.dataManager);
 
         // Create Form
-        setTitle("Drawing system");
-        setMinimumSize(new Dimension(1600,800));
+        setTitle("Informačný systém dopravného podniku");
+        setSize(new Dimension(1600,800));
         setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setBackground(new Color(128, 128, 128));
-
-
-        // Create a panel for buttons
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(43, 45, 48));
-        JButton buttonAddE = new JButton("Add Edge");
-        JButton buttonAddN = new JButton("Add Node");
-        JButton buttonSave = new JButton("Save");
-        JButton buttonLoad = new JButton("Load");
-        JButton buttonGenerate = new JButton("Generate");
-        buttonPanel.add(buttonAddE);
-        buttonPanel.add(buttonAddN);
-        buttonPanel.add(buttonSave);
-        buttonPanel.add(buttonLoad);
-        buttonPanel.add(buttonGenerate);
+        setLocationRelativeTo(null);
 
         // Create a canvas panel
-        JPanel canvasPanel = new JPanel();
-        canvasPanel.setLayout(new OverlayLayout(canvasPanel));
-        this.canvas = new Canvas();
-        this.canvas.setAlignmentX(Component.CENTER_ALIGNMENT);
-        this.canvas.setAlignmentY(Component.CENTER_ALIGNMENT);
-        canvasPanel.add(this.canvas, BorderLayout.CENTER);
-        this.canvas.setLayout(null);
+        JPanel canvasPanel = new JPanel(new BorderLayout());
 
-        // Create a JXMapViewer component
+        // Create a JXMapViewer and MapPainter
         TileFactoryInfo osmInfo = new OSMTileFactoryInfo();
-        final JXMapViewer mapViewer = new JXMapViewer();
+        mapViewer = new JXMapViewer();
         mapViewer.setTileFactory(new DefaultTileFactory(osmInfo));
-        mapViewer.setZoom(7);
-        mapViewer.setAddressLocation(new GeoPosition(49.11, 18.68));
+        mapViewer.setZoom(9);
+        mapViewer.setAddressLocation(new GeoPosition(initialLongitude, initialLatitude));
         MouseInputListener mia = new PanMouseInputListener(mapViewer);
-        canvas.addMouseListener(mia);
-        canvas.addMouseMotionListener(mia);
-        canvas.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
+
+        this.mapPainter = new MapPainter(dataManager);
+        mapViewer.setOverlayPainter(mapPainter);
+
+        mapViewer.addMouseListener(mia);
+        mapViewer.addMouseMotionListener(mia);
+        mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         canvasPanel.add(mapViewer);
-
-
 
         // Create a panel for displaying text
         JPanel textPanel = new JPanel(new BorderLayout());
@@ -87,59 +72,30 @@ public class GUI extends JFrame{
         Font font = this.textArea.getFont();
         Font newFont = font.deriveFont(font.getSize() + 5f); // Increase the font size by 4
         this.textArea.setFont(newFont);
+        this.textArea.setFocusable(false);
         JScrollPane scrollPane = new JScrollPane(this.textArea);
         textPanel.add(scrollPane, BorderLayout.NORTH);
 
         // Edit Panel
         JPanel editPanel = new JPanel(new GridLayout(6, 2, 10, 10));
-        editPanel.setBackground(new Color(77, 78, 81));
+        editPanel.setBackground(Color.GRAY);
         int padding = 10;
         editPanel.setBorder(new EmptyBorder(padding, padding, padding, padding));
 
-
-        // First row: Name
-        JTextArea nameTextArea = new JTextArea("new name");
-        JButton nameButton = new JButton("Change");
-        editPanel.add(nameTextArea);
-        editPanel.add(nameButton);
-
-        // Second row: Value
-        JTextArea valueTextArea = new JTextArea("new value");
-        JButton valueButton = new JButton("Change");
-        editPanel.add(valueTextArea);
-        editPanel.add(valueButton);
-
-        // Third row: ComboBox
-        String[] options = {"UNSPECIFIED",
-                "CUSTOMER",
-                "WAREHOUSE_SLOT",
-                "SOURCE"};
-        JComboBox<String> comboBox = new JComboBox<>(options);
-        JButton comboBoxButton = new JButton("Change");
-        editPanel.add(comboBox);
-        editPanel.add(comboBoxButton);
-
-        // Fourth row: Check coherency button
-        this.coherencyTextArea = new JTextArea("no");
-        this.coherencyTextArea.setBackground(Color.red);
-        Font coherencyFont = this.coherencyTextArea.getFont();
-        Font coherencyNewFont = font.deriveFont(coherencyFont.getSize() + 5f); // Increase the font size by 4
-        this.coherencyTextArea.setFont(coherencyNewFont);
-        this.coherencyTextArea.setEditable(false);
-        JButton coherencyButton = new JButton("Check coherency");
-        editPanel.add(this.coherencyTextArea);
-        editPanel.add(coherencyButton);
-
-        // Fifth row: Show table with distances and update distances buttons
-        JButton distancesButton = new JButton("Shortest distances");
-        JButton updateDistancesButton = new JButton("Calculate distances");
-        editPanel.add(distancesButton);
-        editPanel.add(updateDistancesButton);
-
-        // Sixth row: Delete button
-        this.deleteButton = new JButton("Delete");
-        editPanel.add(this.deleteButton);
-        this.deleteButton.setEnabled(false);
+        JLabel leftLabel = new JLabel("Lava hodnota");
+        JTextField leftTextField = new JTextField();
+        JLabel mainLabel = new JLabel("Hlavna hodnota");
+        JTextField mainTextField = new JTextField();
+        JLabel rightLabel = new JLabel("Prava hodnota");
+        JTextField rightTextField = new JTextField();
+        editPanel.add(leftLabel);
+        editPanel.add(leftTextField);
+        editPanel.add(mainLabel);
+        editPanel.add(mainTextField);
+        editPanel.add(rightLabel);
+        editPanel.add(rightTextField);
+        JButton saveLengthButton = new JButton("Uložiť");
+        editPanel.add(saveLengthButton);
 
         // Adding edit Panel to textPanel
         textPanel.add(editPanel, BorderLayout.CENTER);
@@ -152,7 +108,6 @@ public class GUI extends JFrame{
 
         // Create a main panel and set its layout
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(canvasPanel, BorderLayout.CENTER);
         mainPanel.add(textPanel, BorderLayout.EAST);
 
@@ -162,239 +117,87 @@ public class GUI extends JFrame{
         // Display the GUI
         setVisible(true);
 
-        // Initialize basic attributes
-        initialize();
-
-
-
-        // MouseListener for clicking
-        canvas.addMouseListener(new MouseAdapter() {
+        mapViewer.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                /*
-                System.out.println(String.format("mouse x: %s, y: %s ",  e.getX(), e.getY()));
-                System.out.println(String.format("x: %s, y: %s ",  canvas.getWidth(), canvas.getHeight()));
-                */
-                if (SwingUtilities.isRightMouseButton(e)) {
-                    unselect();
-                    changeCursor();
-                } else {
-                    cursorSelectObj(e);
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                cursorSelectObj(e);
+            }
+        });
+
+        mapViewer.addMouseWheelListener(e -> {
+            switch(mapViewer.getZoom())
+            {
+                case 10:
+                case 9:
+                case 8:
+                case 7:
+                case 6: {dataManager.updateSizes(4,2);break;}
+                case 5:
+                case 4: {dataManager.updateSizes(6,2);break;}
+                case 3:
+                case 2: {dataManager.updateSizes(8,3);break;}
+                case 1:
+                case 0: {dataManager.updateSizes(10,3);break;}
+            }
+            System.out.println(mapViewer.getZoom());
+        });
+
+        saveLengthButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
+                try {
+                    Number left_number = format.parse(leftTextField.getText());
+                    Number main_number = format.parse(mainTextField.getText());
+                    Number right_number = format.parse(rightTextField.getText());
+
+                    double left = left_number.doubleValue();
+                    double main = main_number.doubleValue();
+                    double right = right_number.doubleValue();
+
+                    dataManager.updateEdgeLength(left, main, right);
+                    dataManager.unselect();
+                    textArea.setText("");
+                    repaint();
+                } catch (ParseException ex) {
+                    JOptionPane.showMessageDialog(mainPanel, "Zmeny sa nepodarilo uložiť", "Chyba pri zmene hodnôt" , JOptionPane.ERROR_MESSAGE);;
                 }
+
+                leftTextField.setText("");
+                mainTextField.setText("");
+                rightTextField.setText("");
             }
         });
-
-        // MouseListener for camera
-        canvas.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                initialX = e.getX();
-                initialY = e.getY();
-                dataManager.setStartingX(canvas.getStartX());
-                dataManager.setStartingY(canvas.getStartY());
-            }
-        });
-
-        // MouseListener for camera
-        canvas.addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                double changeX = (e.getX() - initialX) / canvas.getZoomScale();
-                double changeY = (e.getY() - initialY) / canvas.getZoomScale();
-                double newX = dataManager.getStartingX() + changeX;
-                double newY = dataManager.getStartingY() + changeY;
-                canvas.setStartX(newX);
-                canvas.setStartY(newY);
-                canvas.redraw();
-            }
-        });
-
-        canvas.addMouseWheelListener(e -> {
-            int rotation = e.getWheelRotation();
-            if (rotation < 0) {
-                canvas.setZoomScale(canvas.getZoomScale() + 0.1);
-            } else {
-                canvas.setZoomScale(canvas.getZoomScale() - 0.1);
-                if (canvas.getZoomScale() < 0.1) {
-                    canvas.setZoomScale(0.1);
-                }
-            }
-            canvas.redraw();
-        });
-
-        // ButtonListener for adding Edge button
-        buttonAddE.addActionListener(e -> {
-            //System.out.println("add E");
-            this.addingEdge = true;
-            this.addingNode = false;
-            changeCursor();
-        });
-
-        // ButtonListener for adding Node button
-        buttonAddN.addActionListener(e -> {
-            //System.out.println("add N");
-            this.addingNode = true;
-            this.addingEdge = false;
-            changeCursor();
-        });
-
-        // ButtonListener for saving button
-        buttonSave.addActionListener(e -> {
-            //System.out.println("save");
-            this.dataManager.save();
-        });
-
-        // ButtonListener for loading button
-        buttonLoad.addActionListener(e -> {
-            //System.out.println("load");
-            this.dataManager.load();
-            this.canvas.redraw();
-            unselect();
-            checkCoherency();
-        });
-
-        // ButtonListener for generating button
-        buttonGenerate.addActionListener(e -> {
-            //System.out.println("save");
-            this.dataManager.generate(10);
-            getInfo(null);
-            unselect();
-            this.canvas.redraw();
-        });
-
-        // ActionListener for the Name button
-        nameButton.addActionListener(e -> {
-            String newName = nameTextArea.getText();
-            Node node = this.dataManager.getSelectedNode();
-            Edge edge = this.dataManager.getSelectedEdge();
-
-            if (node != null) {
-                node.setName(newName);
-                getInfo(node);
-            } else if (edge != null) {
-                edge.setName(newName);
-                getInfo(edge);
-            }
-            nameTextArea.setText("new Name");
-            //System.out.println("New Name: " + newName);
-        });
-
-        // ActionListener for the Value button
-        valueButton.addActionListener(e -> {
-            double newValue = Double.parseDouble(valueTextArea.getText());
-            Node node = this.dataManager.getSelectedNode();
-            Edge edge = this.dataManager.getSelectedEdge();
-
-            if (node != null) {
-                node.setValue(newValue);
-                getInfo(node);
-            } else if (edge != null) {
-                edge.setLength(newValue);
-                getInfo(edge);
-            }
-            valueTextArea.setText("new value");
-            //System.out.println("New Value: " + newValue);
-        });
-
         // ActionListener for the distance button
-        distancesButton.addActionListener(e -> this.tableWindow.openWindow());
+        //distancesButton.addActionListener(e -> this.tableWindow.openWindow());
 
         // ActionListener for the update distances button
-        updateDistancesButton.addActionListener(e -> this.dataManager.updateDistancesMatrix());
-
-        // ActionListener for the ComboBox button
-        comboBoxButton.addActionListener(e -> {
-            String selectedOption = (String) comboBox.getSelectedItem();
-
-            if (this.dataManager.getSelectedNode() != null) {
-                assert selectedOption != null;
-                NodeType nodeType = getEnum(selectedOption);
-                this.dataManager.getSelectedNode().setType(nodeType);
-            }
-            //System.out.println("Selected Option: " + selectedOption);
-        });
-
-        // ActionListener for the deleting button
-        deleteButton.addActionListener(e -> {
-            if (this.dataManager.getSelectedNode() != null) {
-                this.dataManager.removeNode(this.dataManager.getSelectedNode());
-                System.out.println("Deleted Node");
-            } else if (this.dataManager.getSelectedEdge() != null) {
-                this.dataManager.removeEdge(this.dataManager.getSelectedEdge());
-                System.out.println("Deleted Edge");
-            }
-            checkCoherency();
-            unselect();
-        });
-
-        // ActionListener for the Name button
-        coherencyButton.addActionListener(e -> checkCoherency());
-    }
-
-    private void initialize() {
-        this.initialX = 19.1591;
-        this.initialY = 48.7351;
-        this.dataManager = new DataManager(30,4, initialX, initialY);
-        this.tableWindow = new DistancesWindow(this.dataManager);
-
-        this.canvas.setDataManager(dataManager);
-        this.addingNode = false;
-        this.addingEdge = false;
-        this.canvas.setZoomScale(150);
+        //updateDistancesButton.addActionListener(e -> this.dataManager.updateDistancesMatrix());
 
     }
 
     private void cursorSelectObj(MouseEvent e) {
-        // adding
-        if (addingEdge || addingNode) {
-            if (addingNode) {
-                double realX = canvas.transformXToReal(e.getX());
-                double realY = canvas.transformYToReal(e.getY());
-                this.dataManager.addNode(realX, realY);
-                this.canvas.redraw();
-                checkCoherency();
-                return;
-            } else {
-                Node node = this.canvas.detectNode(e.getX(), e.getY());
-                if (node != null) {
-                    if (dataManager.getSelectedNode() == null) {
-                        selectNode(node);
-                    } else {
-                        this.dataManager.addEdge(dataManager.getSelectedNode(), node);
-                        unselect();
-                        checkCoherency();
-                    }
-                    return;
-                }
-
-            }
-        }
-
         // detect nodes
-        Node node = canvas.detectNode(e.getX(), e.getY());
-        //System.out.println("real stX: " + canvas.getStartX() + " stY: " + canvas.getStartY());
-        if (node != null) {
+        GeoPosition clickedPosition = mapViewer.convertPointToGeoPosition(new Point(e.getX(), e.getY()));
+        Node node = mapPainter.detectNode(mapViewer, clickedPosition);
+        if (node != null)
+        {
             selectNode(node);
             return;
         }
 
         // detect edge
-        Edge edge = canvas.detectEdge(e.getX(), e.getY());
-        if (edge != null) {
+        Edge edge = mapPainter.detectEdge(mapViewer, clickedPosition);
+        if (edge != null)
+        {
             selectEdge(edge);
             return;
         }
 
         unselect();
-    }
-
-    private void changeCursor() {
-        if (!this.addingNode && !addingEdge) {
-            setCursor(Cursor.getDefaultCursor());
-        } else {
-            setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-        }
     }
 
     public void getInfo(ObjInfo item) {
@@ -408,63 +211,21 @@ public class GUI extends JFrame{
         }
     }
 
-    private void createUIComponents() {
-        this.canvas = new Canvas();
-    }
-
-    private void checkCoherency() {
-        if (dataManager.checkCoherency()) {
-            coherencyTextArea.setText("Coherent");
-            coherencyTextArea.setBackground(Color.GREEN);
-        } else {
-            coherencyTextArea.setText("Uncoherent");
-            coherencyTextArea.setBackground(Color.RED);
-        }
-    }
-
-
-
     private void unselect() {
         this.dataManager.unselect();
         getInfo(null);
-        this.canvas.redraw();
-        this.addingNode = false;
-        this.addingEdge = false;
-        changeCursor();
-        deleteButton.setEnabled(false);
+        this.mapViewer.repaint();
     }
 
     private void selectNode(Node node) {
         this.dataManager.setSelectedNode(node);
         getInfo(node);
-        this.deleteButton.setEnabled(true);
-        this.canvas.redraw();
+        this.mapViewer.repaint();
     }
 
     private void selectEdge(Edge edge) {
         this.dataManager.setSelectedEdge(edge);
         getInfo(edge);
-        this.deleteButton.setEnabled(true);
-        this.canvas.redraw();
-    }
-
-    private NodeType getEnum(String input) {
-        NodeType nodeType;
-
-        switch (input) {
-            case "SOURCE":
-                nodeType = NodeType.SOURCE;
-                break;
-            case "CUSTOMER":
-                nodeType = NodeType.CUSTOMER;
-                break;
-            case "WAREHOUSE_SLOT":
-                nodeType = NodeType.WAREHOUSE_SLOT;
-                break;
-            default:
-                nodeType = NodeType.UNSPECIFIED;
-                break;
-        }
-        return nodeType;
+        this.mapViewer.repaint();
     }
 }

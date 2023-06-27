@@ -1,6 +1,6 @@
 package Data;
 
-public interface ObjInfo {
-
+public interface ObjInfo
+{
     public String[] getInfo();
 }
