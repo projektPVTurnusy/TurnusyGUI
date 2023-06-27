@@ -57,13 +57,12 @@ public class GUI extends JFrame{
 
         // Create a canvas panel
         JPanel canvasPanel = new JPanel();
-        canvasPanel.setLayout(new BorderLayout());
+        canvasPanel.setLayout(new OverlayLayout(canvasPanel));
         this.canvas = new Canvas();
         this.canvas.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.canvas.setAlignmentY(Component.CENTER_ALIGNMENT);
         canvasPanel.add(this.canvas, BorderLayout.CENTER);
         this.canvas.setLayout(null);
-
         // Create a JXMapViewer component
 
         TileFactoryInfo osmInfo = new OSMTileFactoryInfo();
@@ -76,6 +75,9 @@ public class GUI extends JFrame{
         mapViewer.addMouseMotionListener(mia);
         mapViewer.addMouseWheelListener(new ZoomMouseWheelListenerCursor(mapViewer));
         canvasPanel.add(mapViewer);
+
+        //
+
 
         // Create a panel for displaying text
         JPanel textPanel = new JPanel(new BorderLayout());
