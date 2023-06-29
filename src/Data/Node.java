@@ -21,11 +21,10 @@ public class Node implements ObjInfo {
 
     public String[] getInfo() {
         String[] info = new String[6 + edges.size()];
-        //String[] info = new String[4];
-        info[0] = "  ID zastávky: " + this.id + "\n";
-        info[1] = "  Názov zastávky: " + this.name + "\n";
-        info[2] = "  Zemepisná šírka: " + this.x + "\n";
-        info[3] = "  Zemepisná dĺžka: " + this.y + "\n";
+        info[0] = " ID zastávky: " + this.id + "\n";
+        info[1] = " Názov zastávky: " + this.name + "\n";
+        info[2] = " Zemepisná šírka: " + this.x + "\n";
+        info[3] = " Zemepisná dĺžka: " + this.y + "\n";
 
         for (int i = 0; i < edges.size(); ++i)
         {

@@ -27,6 +27,21 @@ public class Edge implements ObjInfo {
         return node2;
     }
 
+    public double getLeft()
+    {
+        return this.length.getLeft();
+    }
+
+    public double getMain()
+    {
+        return this.length.getMain();
+    }
+
+    public double getRight()
+    {
+        return this.length.getRight();
+    }
+
     public void setLength(double left, double main, double right)
     {
         this.length.setLeft(left);
@@ -37,10 +52,10 @@ public class Edge implements ObjInfo {
     public String[] getInfo()
     {
         String[] info = new String[4];
-        info[0] = "  ID: " + this.id + "\n";
-        info[1] = "  Dĺžka prejazdu: <" + this.length.getLeft() + ", " + this.length.getMain() + ", " + this.length.getRight() + ">\n";
-        info[2] = "  Názov zastávky 1: " + this.node1.getName() + "\n";
-        info[3] = "  Názov zastávky 2: " + this.node2.getName() + "\n";
+        info[0] = " ID: " + this.id + "\n";
+        info[1] = " Dĺžka prejazdu: <" + this.length.getLeft() + ", " + this.length.getMain() + ", " + this.length.getRight() + ">\n";
+        info[2] = " Názov zastávky 1: " + this.node1.getName() + "\n";
+        info[3] = " Názov zastávky 2: " + this.node2.getName() + "\n";
         return info;
     }
 

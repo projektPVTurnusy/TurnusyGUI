@@ -92,7 +92,6 @@ public class DataManager {
         if(this.selectedEdge != null)
         {
             this.selectedEdge.setLength(left, main, right);
-            unselect();
         }
     }
 
