@@ -84,11 +84,10 @@ public class MapPainter implements org.jxmapviewer.painter.Painter<JXMapViewer> 
         //license
         String license = mapViewer.getTileFactory().getInfo().getAttribution();
         g.setColor(Color.WHITE);
-        Rectangle2D rect = new Rectangle2D.Double(mapViewer.getHeight() - license.length()*6, mapViewer.getWidth()-20,210,20);
+        Rectangle2D rect = new Rectangle2D.Double(mapViewer.getHeight() - license.length()*6, mapViewer.getWidth()-20,license.length()*6,20);
         g.fill(rect);
         g.setColor(Color.BLACK);
-        g.drawString(license, mapViewer.getHeight() - license.length()*6+1, mapViewer.getWidth()-6);
-        //g.drawString("© Openstreetmap (osm.org/copyright)", mapViewer.getHeight()-208, mapViewer.getWidth()-6);
+        g.drawString(license, mapViewer.getHeight() - license.length() * 6 + 1, mapViewer.getWidth()-6);
     }
 
     public Node detectNode(JXMapViewer mapViewer, GeoPosition position)

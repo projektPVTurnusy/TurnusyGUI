@@ -106,8 +106,8 @@ public class GUI {
 
         String[] tfLabels = new String[factories.size()];
         tfLabels[0] = "OpenStreetMap";
-        tfLabels[1] = "Virtual Earth - Mapa";
-        tfLabels[2] = "Virtual Earth - Satelit";
+        tfLabels[1] = "Virtual Earth - Cestná mapa";
+        tfLabels[2] = "Virtual Earth - Hybridná mapa";
 
         final JComboBox combo = new JComboBox(tfLabels);
         combo.addItemListener(e -> {
